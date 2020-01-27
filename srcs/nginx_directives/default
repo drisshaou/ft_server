@@ -1,0 +1,68 @@
+server {
+	listen 443 ssl;
+	listen [::]:443 ssl;
+
+	ssl_certificate		/etc/ssl/certs/localhost.pem;
+	ssl_certificate_key	/etc/ssl/certs/localhost-key.pem;
+
+	server_name localhost;
+
+	root /var/www/html;
+
+	index index.php index.html index.htm;
+
+	location / {
+		try_files $uri $uri/ =404;
+	}
+
+	location /phpmyadmin {
+		root /usr/share;
+		index index.php;
+		location ~ ^/phpmyadmin/(.+\.php)$ {
+			try_files $uri =404;
+			fastcgi_pass unix:/var/run/php/php7.3-fpm.sock;
+			include /etc/nginx/fastcgi_params;
+			fastcgi_index index.php;
+			fastcgi_param HTTPS on;
+			fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+			fastcgi_param SCRIPT_NAME $fastcgi_script_name;
+		}
+		location ~ ^/phpmyadmin/(.+\.(jpg|jpeg|gif|css|png|js|ico|html|xml|txt))$ {
+			root /usr/share;
+		}
+	}
+
+	location /wordpress {
+		root /var/www/html;
+		index index.php;
+		location ~ ^/wordpress/(.+\.php)$ {
+			try_files $uri =404;
+			fastcgi_pass unix:/var/run/php/php7.3-fpm.sock;
+			include /etc/nginx/fastcgi_params;
+			fastcgi_index index.php;
+			fastcgi_param HTTPS on;
+			fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+			fastcgi_param SCRIPT_NAME $fastcgi_script_name;
+		}
+		location ~ ^/wordpress/(.+\.(jpg|jpeg|gif|css|png|js|ico|html|xml|txt))$ {
+			root /var/www/html;
+		}
+	}
+
+	location ~* \.php$ {
+		try_files $uri =404;
+		fastcgi_pass unix:/var/run/php/php7.3-fpm.sock;
+		include /etc/nginx/fastcgi_params;
+		fastcgi_index index.php;
+		fastcgi_param HTTPS on;			# maybe need to remove it
+		fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+		fastcgi_param SCRIPT_NAME $fastcgi_script_name;
+	}
+}
+
+server {
+	listen 80;
+	listen [::]:80;
+	server_name localhost;
+	return 301 https://$host$request_uri;
+}

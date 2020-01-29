@@ -26,7 +26,6 @@ server {
 		root /usr/share;
 		index index.php;
 		location ~ ^/phpmyadmin/(.+\.php)$ {
-			try_files $uri =404;
 			fastcgi_pass unix:/var/run/php/php7.3-fpm.sock;
 			include /etc/nginx/fastcgi_params;
 			fastcgi_index index.php;
@@ -43,7 +42,6 @@ server {
 		root /var/www/html;
 		index index.php;
 		location ~ ^/wordpress/(.+\.php)$ {
-			try_files $uri =404;
 			fastcgi_pass unix:/var/run/php/php7.3-fpm.sock;
 			include /etc/nginx/fastcgi_params;
 			fastcgi_index index.php;
